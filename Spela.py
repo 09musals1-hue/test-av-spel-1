@@ -12,13 +12,27 @@ pygame.display.set_caption("Fågelspel")
 WHITE = (255, 255, 255)
 BLUE = (135, 206, 235)
 RED = (255, 0, 0)
+BIRD_COLOR = (255, 255, 0)
 
-# Ladda fågelbild
-bird_img = pygame.image.load("bird.png")
-bird_img = pygame.transform.scale(bird_img, (60, 60))  # ändra storlek
+bird_img = None
+bird_image_path = "bird.png"
+if os.path.isfile(bird_image_path):
+    bird_img = pygame.image.load(bird_image_path)
+elif os.path.isdir(bird_image_path):
+    supported = [f for f in os.listdir(bird_image_path) if f.lower().endswith((".png", ".jpg", ".jpeg", ".bmp", ".gif", ".webp"))]
+    if supported:
+        bird_img = pygame.image.load(os.path.join(bird_image_path, supported[0]))
+        print(f"Loaded bird image from {bird_image_path}/{supported[0]}")
+    else:
+        print(f"Hittade ingen bild i mappen {bird_image_path}")
+else:
+    print(f"Hittade ingen fil eller mapp {bird_image_path}, ritar en cirkel istället")
 
-bird_x = 100
-bird_y = 200
+if bird_img:
+    bird_img = pygame.transform.scale(bird_img, (60, 60))
+
+bird_x = 200
+bird_y = 300
 bird_speed = 5
 
 # Mat
@@ -49,14 +63,18 @@ while running:
     if keys[pygame.K_RIGHT]:
         bird_x += bird_speed
 
-    # Rita fågelbild istället för fyrkant
-    screen.blit(bird_img, (bird_x, bird_y))
+    # Rita fågeln
+    if bird_img:
+        screen.blit(bird_img, (bird_x, bird_y))
+        bird_rect = bird_img.get_rect(topleft=(bird_x, bird_y))
+    else:
+        pygame.draw.circle(screen, BIRD_COLOR, (bird_x + 30, bird_y + 30), 30)
+        bird_rect = pygame.Rect(bird_x, bird_y, 60, 60)
 
     # Rita mat
     pygame.draw.rect(screen, RED, (food_x, food_y, food_size, food_size))
 
-    # Kollision (anpassad för bild)
-    bird_rect = bird_img.get_rect(topleft=(bird_x, bird_y))
+    # Kollision
     food_rect = pygame.Rect(food_x, food_y, food_size, food_size)
 
     if bird_rect.colliderect(food_rect):
