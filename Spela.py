@@ -1,7 +1,6 @@
 import pygame
 import random
 import os
-print(os.listdir())
 
 pygame.init()
 
@@ -62,6 +61,10 @@ while running:
         bird_x -= bird_speed
     if keys[pygame.K_RIGHT]:
         bird_x += bird_speed
+
+    # Gränser så fågeln inte går utanför skärmen
+    bird_x = max(0, min(bird_x, WIDTH - 60))
+    bird_y = max(0, min(bird_y, HEIGHT - 60))
 
     # Rita fågeln
     if bird_img:
